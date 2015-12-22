@@ -15,6 +15,7 @@ defmodule Rumbl.UserController do
       {:ok, user} ->
         conn
         |> put_flash(:info, "#{user.name} created!")
+        |> Rumbl.Auth.login(user)
         |> redirect(to: user_path(conn, :index))
       {:error, changeset} ->
         render(conn, "new.html", changeset: changeset)
