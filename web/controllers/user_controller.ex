@@ -2,6 +2,8 @@ defmodule Rumbl.UserController do
   use Rumbl.Web, :controller
   alias Rumbl.User
 
+  plug :authenticate when action in [:index, :show]
+
   def new(conn, _params) do
     changeset = User.changeset(%User{})
     render conn, "new.html", changeset: changeset
@@ -27,5 +29,16 @@ defmodule Rumbl.UserController do
   def show(conn, %{"id" => id}) do
     user = Repo.get(Rumbl.User, id)
     render conn, "show.html", user: user
+  end
+
+  defp authenticate(conn, _options) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access that page")
+      |> redirect(to: page_path(conn, :index))
+      |> halt()
+    end
   end
 end
