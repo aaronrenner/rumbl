@@ -19,6 +19,7 @@ defmodule Rumbl.ModelCase do
       alias Rumbl.Repo
       import Ecto.Model
       import Ecto.Query, only: [from: 2]
+      import Rumbl.TestHelpers
       import Rumbl.ModelCase
     end
   end
