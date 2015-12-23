@@ -20,4 +20,8 @@ defmodule Rumbl.Category do
     model
     |> cast(params, @required_fields, @optional_fields)
   end
+
+  def alphabetical(query \\ __MODULE__) do
+    from c in query, order_by: c.name
+  end
 end

@@ -23,5 +23,6 @@ defmodule Rumbl.Video do
   def changeset(model, params \\ :empty) do
     model
     |> cast(params, @required_fields, @optional_fields)
+    |> foreign_key_constraint(:category_id)
   end
 end

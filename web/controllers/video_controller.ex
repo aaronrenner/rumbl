@@ -3,6 +3,7 @@ defmodule Rumbl.VideoController do
 
   alias Rumbl.Video
 
+  plug :load_categories when action in [:new, :create, :edit, :update]
   plug :scrub_params, "video" when action in [:create, :update]
 
   def index(conn, _params, user) do
@@ -12,17 +13,17 @@ defmodule Rumbl.VideoController do
 
   def new(conn, _params, user) do
     changeset =
-      user
-      |> build_assoc(:videos)
-      |> Video.changeset()
+    user
+    |> build_assoc(:videos)
+    |> Video.changeset()
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"video" => video_params}, user) do
     changeset =
-      user
-      |> build_assoc(:videos)
-      |> Video.changeset(video_params)
+    user
+    |> build_assoc(:videos)
+    |> Video.changeset(video_params)
 
     case Repo.insert(changeset) do
       {:ok, _video} ->
@@ -73,10 +74,18 @@ defmodule Rumbl.VideoController do
 
   def action(conn, _) do
     apply(__MODULE__, action_name(conn),
-      [conn, conn.params, conn.assigns.current_user])
+    [conn, conn.params, conn.assigns.current_user])
   end
 
   defp user_videos(user) do
     assoc(user, :videos)
+  end
+
+  defp load_categories(conn, _) do
+    categories = Repo.all(
+      from c in Rumbl.Category.alphabetical(),
+      select: {c.name, c.id}
+    )
+    assign(conn, :categories, categories)
   end
 end
