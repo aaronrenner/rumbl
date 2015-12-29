@@ -10,7 +10,8 @@ defmodule Rumbl do
       # Start the endpoint when the application starts
       supervisor(Rumbl.Endpoint, []),
       # Start the Ecto repository
-      supervisor(Rumbl.Repo, [])
+      supervisor(Rumbl.Repo, []),
+      supervisor(Rumbl.InfoSys.Supervisor, [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
