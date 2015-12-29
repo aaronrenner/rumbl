@@ -1,4 +1,4 @@
-import Player from "./player"
+import Player from "./player";
 
 let Video = {
   init(socket, element) {
@@ -13,6 +13,14 @@ let Video = {
     Player.init(element.id, playerId);
 
     socket.connect()
+
+    msgContainer.addEventListener("click", e=> {
+      e.preventDefault();
+      let seconds = e.target.getAttribute("data-seek");
+      if(!seconds){ return }
+
+      Player.seekTo(seconds);
+    });
 
     let vidChannel = socket.channel("videos:" + videoId);
 
@@ -30,7 +38,7 @@ let Video = {
 
     vidChannel.join()
       .receive("ok", ({annotations}) => {
-        annotations.forEach( ann => this.renderAnnotation(msgContainer, ann));
+        this.scheduleMessages(msgContainer, annotations);
       })
       .receive("error", reason => console.log("join failed", reason));
   },
@@ -38,13 +46,30 @@ let Video = {
   renderAnnotation(msgContainer, {user, body, at}){
     let template = document.createElement("div");
     template.innerHTML = `
-      <a href="#" data-seek="#{at}">
-        [${this.formatTime(at)}] <b>${user.username}</b>: ${body}
-      </a>
+      <a href="#" data-seek="${at}">[${this.formatTime(at)}]</a> <b>${user.username}</b>: ${body}
     `;
 
     msgContainer.appendChild(template);
     msgContainer.scrollTop = msgContainer.scrollHeight;
+  },
+
+  scheduleMessages(msgContainer, annotations){
+    setTimeout(() => {
+      let ctime = Player.getCurrentTime();
+      let remaining = this.renderAtTime(annotations, ctime, msgContainer);
+      this.scheduleMessages(msgContainer, remaining);
+    }, 1000);
+  },
+
+  renderAtTime(annotations, seconds, msgContainer){
+    return annotations.filter(ann => {
+      if(ann.at > seconds){
+        return true;
+      } else {
+        this.renderAnnotation(msgContainer, ann);
+        return false;
+      }
+    });
   },
 
   formatTime(at) {

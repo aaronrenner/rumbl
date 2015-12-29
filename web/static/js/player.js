@@ -24,7 +24,13 @@ let Player = {
 
   onPlayerStateChange(event) { },
 
-  getCurrentTime() { return Math.floor(this.player.getCurrentTime() * 1000) },
+  getCurrentTime() {
+    if (this.player.getCurrentTime) {
+      return Math.floor(this.player.getCurrentTime() * 1000);
+    } else {
+      return 0;
+    }
+  },
   seekTo(millsec) { return this.player.seekTo(millsec / 1000) }
 }
 
